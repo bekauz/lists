@@ -40,6 +40,17 @@ impl List {
 
 }
 
+impl Drop for List {
+    fn drop(&mut self) {
+        // replace the head with an empty link, returns previous val
+        let mut cur_link = mem::replace(&mut self.head, Link::Empty);
+        while let Link::More(mut boxed_node) = cur_link {
+            cur_link = mem::replace(&mut boxed_node.next, Link::Empty);
+            // boxed_node will go out of scope and get dropped
+        }
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::List;
@@ -65,6 +76,5 @@ mod test {
         assert_eq!(list.pop(), Some(4));
         assert_eq!(list.pop(), Some(1));
         assert_eq!(list.pop(), None);
-
     }
 }
